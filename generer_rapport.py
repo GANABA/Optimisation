@@ -161,29 +161,32 @@ story.append(Paragraph(
 story.append(Paragraph("2  Solutions obtenues sur les instances", section))
 
 story.append(Paragraph(
-    "Le programme lineaire est formule et resolu avec la bibliotheque PuLP (solveur CBC, "
-    "equivalent libre de GLPK). Les resultats suivants sont obtenus avec 10 configurations "
-    "elementaires generees par heuristique greedy (graine aleatoire fixee : seed = 42) :",
+    "Le programme lineaire est formule et resolu avec la bibliotheque PuLP (solveur CBC). "
+    "Les resultats suivants sont obtenus avec au plus 30 configurations elementaires "
+    "generees par heuristique greedy (seed = 42). La borne superieure theorique est calculee "
+    "par upper_bound() = min<sub>z</sub> &Sigma;<sub>k couvre z</sub> T<sub>k</sub> "
+    "(Manju &amp; Pujari, 2011) :",
     corps
 ))
 
 data_res = [
-    ["Instance", "N", "M", "Configs\ngenerees", "Duree de vie\nobtenue", "Temps (s)", "Statut"],
-    ["fichier-exemple",  "4",   "3",   "4",  "8.5000",    "0.13", "Optimal"],
-    ["moyen_test_2",     "20",  "10",  "3",  "15.0000",   "0.17", "Optimal"],
-    ["moyen_test_3",     "10",  "10",  "10", "358.0000",  "0.06", "Optimal"],
-    ["gros_test_1",      "100", "200", "10", "177.0000",  "0.20", "Optimal"],
+    ["Instance", "N", "M", "Configs\ngenerees", "Borne\nsup.", "Duree de vie\n(greedy)", "% borne", "Statut"],
+    ["fichier-exemple",  "4",    "3",   "4",  "9.0",     "8.5000",    "94 %",  "Optimal"],
+    ["moyen_test_2",     "20",   "10",  "3",  "104.0",   "15.0000",   "14 %",  "Optimal"],
+    ["moyen_test_3",     "10",   "10",  "10", "463.0",   "358.0000",  "77 %",  "Optimal"],
+    ["gros_test_1",      "100",  "200", "30", "3437.0",  "177.0000",  "5 %",   "Optimal"],
+    ["maxi_test_1",      "1000", "500", "30", "27245.0", "506.0000",  "1 %",   "Optimal"],
 ]
-t_res = Table(data_res, colWidths=[3.6*cm, 1.2*cm, 1.2*cm, 2.2*cm, 3.0*cm, 2.2*cm, 2.0*cm])
+t_res = Table(data_res, colWidths=[3.2*cm, 1.1*cm, 1.1*cm, 1.8*cm, 2.2*cm, 2.6*cm, 1.6*cm, 1.9*cm])
 t_res.setStyle(style_tableau_latex())
 story.append(t_res)
 story.append(Spacer(1, 4))
 
 story.append(Paragraph(
-    "L'instance fichier-exemple atteint l'optimum prouve de 8.5 documente dans le sujet, "
-    "ce qui valide l'implementation. Pour moyen_test_2, le greedy ne produit que 3 "
-    "configurations distinctes, ce qui limite la qualite — ce phenomene est analyse "
-    "en section 3.",
+    "L'instance fichier-exemple atteint 8.5, coherent avec l'optimum prouve du sujet "
+    "(borne sup. = 9.0). Sur les grandes instances, l'ecart a la borne superieure est "
+    "considerable (5 % pour gros_test_1, 1 % pour maxi_test_1) : le greedy seul, limite "
+    "a quelques configurations distinctes, ne suffit pas — ce phenomene est analyse en section 3.",
     corps
 ))
 
@@ -216,32 +219,33 @@ story.append(Paragraph(
 story.append(Paragraph("3.1  Influence du nombre de configurations", sous_section))
 
 story.append(Paragraph(
-    "Le tableau suivant presente la duree de vie obtenue sur moyen_test_3 (N=10, M=10) "
-    "en faisant varier le nombre de configurations pour chacune des deux heuristiques :",
+    "Le tableau suivant presente la duree de vie obtenue sur moyen_test_3 (N=10, M=10, "
+    "borne sup. = 463.0) en faisant varier le nombre de configurations pour les trois heuristiques :",
     corps
 ))
 
 data_nb = [
     ["Heuristique \\ Nb configs", "1", "2", "3", "5", "10", "15", "20"],
-    ["Greedy",     "55.0", "127.0", "166.0", "268.5", "358.0", "358.0", "358.0"],
-    ["Aleatoire",  "90.0", "109.0", "163.0", "235.0", "342.0", "395.0", "395.0"],
+    ["Greedy",    "55.0",  "127.0", "166.0", "268.5", "358.0", "358.0", "358.0"],
+    ["HEF",       "166.0", "166.0", "166.0", "166.0", "166.0", "166.0", "166.0"],
+    ["Aleatoire", "90.0",  "109.0", "163.0", "235.0", "342.0", "395.0", "395.0"],
 ]
-col_w = [3.8*cm] + [1.55*cm]*7
+col_w = [3.4*cm] + [1.44*cm]*7
 t_nb = Table(data_nb, colWidths=col_w)
 t_nb.setStyle(style_tableau_latex())
 story.append(t_nb)
 story.append(Paragraph(
-    "Tableau 1 - Duree de vie en fonction du nombre de configurations (instance moyen_test_3)",
+    "Tableau 1 - Duree de vie en fonction du nombre de configurations (moyen_test_3, borne = 463.0)",
     corps_it
 ))
 
 story.append(Paragraph(
     "La duree de vie augmente significativement avec le nombre de configurations jusqu'a "
-    "atteindre un plateau (a partir de 10 configs pour le greedy, 15 pour l'aleatoire). "
-    "Avec une seule configuration, on obtient 55.0 contre 395.0 avec 20 configurations, "
-    "soit une amelioration de +618 %. Au-dela du seuil de saturation, ajouter de nouvelles "
-    "configurations n'apporte plus de gain : toutes les configurations pertinentes ont ete "
-    "trouvees et le LP atteint sa solution optimale sur ce pool.",
+    "atteindre un plateau (10 configs pour greedy, 15 pour aleatoire). HEF stagne "
+    "a 166.0 quelle que soit la demande : etant deterministe, il ne produit qu'une seule "
+    "configuration distincte. L'amelioration entre 1 et 20 configs atteint +618 % pour "
+    "l'aleatoire (55.0 -> 395.0). Au-dela du seuil de saturation, le LP ne progresse plus "
+    "car toutes les configurations pertinentes ont ete trouvees.",
     corps
 ))
 
@@ -249,39 +253,36 @@ story.append(Paragraph(
 story.append(Paragraph("3.2  Influence du type d'heuristique", sous_section))
 
 story.append(Paragraph(
-    "Le tableau suivant compare les deux heuristiques avec 10 configurations demandees "
-    "sur chaque instance :",
+    "Le tableau suivant compare les trois heuristiques (30 configurations demandees, seed=42) "
+    "sur toutes les instances. Format : nb configs obtenues / duree de vie (% borne sup.) :",
     corps
 ))
 
 data_type = [
-    ["Instance",        "Heuristique", "Configs\nobtenues", "Duree de vie"],
-    ["fichier-exemple", "Greedy",      "4",               "8.5000"],
-    ["fichier-exemple", "HEF",         "1",               "6.0000"],
-    ["fichier-exemple", "Aleatoire",   "4",               "8.5000"],
-    ["moyen_test_2",    "Greedy",      "3",               "15.0000"],
-    ["moyen_test_2",    "HEF",         "2",               "19.0000"],
-    ["moyen_test_2",    "Aleatoire",   "10",              "58.0000"],
-    ["moyen_test_3",    "Greedy",      "10",              "358.0000"],
-    ["moyen_test_3",    "HEF",         "1",               "166.0000"],
-    ["moyen_test_3",    "Aleatoire",   "10",              "342.0000"],
+    ["Instance",        "Greedy\ncfgs / duree (% borne)", "HEF\ncfgs / duree (% borne)", "Aleatoire\ncfgs / duree (% borne)"],
+    ["fichier-exemple", "4 / 8.5 (94 %)",   "1 / 6.0 (66 %)",    "4 / 8.5 (94 %)"],
+    ["moyen_test_2",    "3 / 15.0 (14 %)",  "2 / 19.0 (18 %)",   "30 / 104.0 (100 %)"],
+    ["moyen_test_3",    "10 / 358.0 (77 %)", "1 / 166.0 (35 %)", "18 / 395.0 (85 %)"],
+    ["gros_test_1",     "30 / 177.0 (5 %)", "1 / 196.0 (5 %)",   "30 / 992.0 (28 %)"],
+    ["maxi_test_1",     "30 / 506.0 (1 %)", "3 / 197.0 (0 %)",   "30 / 1463.0 (5 %)"],
 ]
-t_type = Table(data_type, colWidths=[4.0*cm, 3.2*cm, 3.0*cm, 3.8*cm])
+t_type = Table(data_type, colWidths=[3.4*cm, 4.7*cm, 4.2*cm, 4.2*cm])
 t_type.setStyle(style_tableau_latex())
 story.append(t_type)
 story.append(Paragraph(
-    "Tableau 2 - Comparaison des heuristiques avec 10 configurations demandees",
+    "Tableau 2 - Comparaison des trois heuristiques sur toutes les instances (30 configs demandees)",
     corps_it
 ))
 
 story.append(Paragraph(
-    "L'aleatoire domine sur moyen_test_2 (58.0) grace a sa grande diversite (10 configs). "
-    "Le greedy est meilleur sur moyen_test_3 (358.0 contre 342.0). "
-    "HEF est tres deterministe : il produit 1 a 2 configs distinctes seulement, "
-    "car il choisit toujours les memes capteurs a haute energie — ce qui limite fortement "
-    "la qualite de la solution LP. Ces resultats suggerent qu'une <b>combinaison "
-    "greedy + aleatoire</b> produit les meilleurs pools : qualite du greedy et diversite "
-    "de l'aleatoire.",
+    "L'aleatoire atteint 100 % de la borne superieure sur moyen_test_2 (104.0/104.0), "
+    "grace a la diversite de ses 30 configurations. Sur les grandes instances, l'ecart "
+    "reste important (28 % pour gros_test_1, 5 % pour maxi_test_1) : un pool de 30 configs "
+    "est insuffisant a cette echelle. HEF produit 1 a 3 configurations distinctes seulement — "
+    "deterministe par nature, il choisit toujours les memes capteurs a haute energie — "
+    "ce qui plafonne la solution LP. L'aleatoire domine sur toutes les instances sauf "
+    "fichier-exemple (egalite avec greedy). Ces resultats confirment qu'une <b>combinaison "
+    "greedy + aleatoire</b> offre le meilleur compromis qualite/diversite.",
     corps
 ))
 
@@ -291,9 +292,11 @@ story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAf
 story.append(Paragraph(
     "<b>Conclusion.</b> "
     "La qualite de la solution depend directement de la richesse du pool de configurations. "
-    "Un pool trop petit ou trop homogene bride le programme lineaire. La strategie optimale "
-    "consiste a generer au moins 10 configurations en alternant les deux heuristiques "
-    "pour maximiser la diversite tout en preservant la qualite individuelle de chaque configuration.",
+    "Sur les petites instances (N &lt; 20), 10 a 30 configurations suffisent pour s'approcher "
+    "de la borne superieure. Sur les grandes instances (N = 100-1000), 30 configurations "
+    "restent largement insuffisantes : l'ecart a la borne depasse 70 %. La strategie optimale "
+    "consiste a combiner greedy et aleatoire pour maximiser la diversite tout en preservant "
+    "la qualite individuelle de chaque configuration ; HEF seul est a eviter.",
     corps
 ))
 
