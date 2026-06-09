@@ -1,5 +1,6 @@
 import sys
 import time
+import pulp
 from data import load
 from heuristics import generer_pool
 from lp_solver import resoudre, afficher_solution
@@ -12,7 +13,7 @@ INSTANCES = [
     "maxi_test_1.txt"
 ]
 
-N_CONFIGS = 5000
+N_CONFIGS = 30
 
 
 def resoudre_instance(fichier, heuristique="greedy"):
@@ -24,7 +25,6 @@ def resoudre_instance(fichier, heuristique="greedy"):
     model, t = resoudre(problem, pool)
     duree = time.perf_counter() - debut
 
-    import pulp
     duree_vie = pulp.value(model.objective) or 0.0
     statut = pulp.LpStatus[model.status]
 
@@ -42,9 +42,11 @@ def mode_instance(fichier, heuristique="greedy"):
     print()
     print("=== Partie 2 : configurations elementaires ===")
     print(f"{len(pool)} configurations generees :")
-    for i, cfg in enumerate(pool):
+    for i, cfg in enumerate(pool[:5]):
         capteurs = sorted(k + 1 for k in cfg)
         print(f"  u{i+1} = capteurs {capteurs}")
+    if len(pool) > 5:
+        print(f"  ... et {len(pool) - 5} autres configurations")
 
     print()
     print("=== Partie 3 : resolution du programme lineaire ===")
@@ -70,10 +72,7 @@ def mode_all():
             statut_final = "Inconnu"
             ub = problem.upper_bound()
             nb_cfgs_set = set()
-            import time
-            
             for h in ["greedy", "hef", "aleatoire"]:
-                import pulp
                 pool = generer_pool(problem, n_configs=N_CONFIGS, seed=42, heuristique=h)
                 nb_cfgs_set.add(len(pool))
                 if not pool:

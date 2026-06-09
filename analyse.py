@@ -45,21 +45,6 @@ def analyse_type(problem, nom_instance, n_configs=10):
         print(f"{nom_h:<15} {lt:>14.4f} {len(pool):>18}")
 
 
-if __name__ == "__main__":
-    instances = [
-        ("fichier-exemple.txt",  "fichier-exemple"),
-        ("moyen_test_2.txt",     "moyen_test_2"),
-        ("moyen_test_3.txt",     "moyen_test_3"),
-    ]
-
-    print("=== Partie 5 : analyse des resultats ===")
-
-    for fichier, nom in instances:
-        problem = load(fichier)
-        analyse_nombre(problem, nom)
-        analyse_type(problem, nom, n_configs=10)
-
-
 def plot_heuristics(problem, nom_instance, max_configs=30, step=5, seed=42):
     """
     Génère un graphique montrant l'évolution de la durée de vie en fonction 
@@ -97,5 +82,20 @@ def plot_heuristics(problem, nom_instance, max_configs=30, step=5, seed=42):
     
     filename = f"graphique_{nom_instance}.png"
     plt.savefig(filename, dpi=300, bbox_inches='tight')
-    print(f"✅ Graphique généré et sauvegardé sous : {filename}")
+    print(f"OK : graphique sauvegarde sous {filename}")
+
+
+if __name__ == "__main__":
+    instances = [
+        ("fichier-exemple.txt",  "fichier-exemple"),
+        ("moyen_test_2.txt",     "moyen_test_2"),
+        ("moyen_test_3.txt",     "moyen_test_3"),
+    ]
+
+    print("=== Partie 5 : analyse des resultats ===")
+
+    for fichier, nom in instances:
+        problem = load(fichier)
+        analyse_nombre(problem, nom)
+        analyse_type(problem, nom, n_configs=10)
 
