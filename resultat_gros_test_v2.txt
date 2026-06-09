@@ -1,0 +1,60 @@
+=== Résolution V2 par Génération de Colonnes : gros_test_1.txt ===
+Réseau : N=100 capteurs, M=200 zones
+Borne Supérieure Théorique : 3437.0
+
+[Etape 1] Génération du pool initial (30 configurations aléatoires)...
+Pool initial généré : 30 configurations distinctes.
+
+[Etape 2] Lancement de l'algorithme exact...
+  Itération  10 | Taille du pool :   40 | Durée de vie : 1332.00
+  Itération  20 | Taille du pool :   50 | Durée de vie : 1675.00
+  Itération  30 | Taille du pool :   60 | Durée de vie : 1848.83
+  Itération  40 | Taille du pool :   70 | Durée de vie : 2049.19
+  Itération  50 | Taille du pool :   80 | Durée de vie : 2165.12
+  Itération  60 | Taille du pool :   90 | Durée de vie : 2354.54
+  Itération  70 | Taille du pool :  100 | Durée de vie : 2407.89
+  Itération  80 | Taille du pool :  110 | Durée de vie : 2446.19
+  Itération  90 | Taille du pool :  120 | Durée de vie : 2472.37
+  Itération 100 | Taille du pool :  130 | Durée de vie : 2507.99
+  Itération 110 | Taille du pool :  140 | Durée de vie : 2544.65
+  Itération 120 | Taille du pool :  150 | Durée de vie : 2583.73
+  Itération 130 | Taille du pool :  160 | Durée de vie : 2602.24
+  Itération 140 | Taille du pool :  170 | Durée de vie : 2626.17
+  Itération 150 | Taille du pool :  180 | Durée de vie : 2687.01
+  Itération 160 | Taille du pool :  190 | Durée de vie : 2700.91
+  Itération 170 | Taille du pool :  200 | Durée de vie : 2709.04
+  Itération 180 | Taille du pool :  210 | Durée de vie : 2739.33
+  Itération 190 | Taille du pool :  220 | Durée de vie : 2754.91
+  Itération 200 | Taille du pool :  230 | Durée de vie : 2773.11
+  Itération 210 | Taille du pool :  240 | Durée de vie : 2785.75
+  Itération 220 | Taille du pool :  250 | Durée de vie : 2805.59
+  Itération 230 | Taille du pool :  260 | Durée de vie : 2826.23
+  Itération 240 | Taille du pool :  270 | Durée de vie : 2838.83
+  Itération 250 | Taille du pool :  280 | Durée de vie : 2865.84
+  Itération 260 | Taille du pool :  290 | Durée de vie : 2887.32
+  Itération 270 | Taille du pool :  300 | Durée de vie : 2898.71
+  Itération 280 | Taille du pool :  310 | Durée de vie : 2911.14
+  Itération 290 | Taille du pool :  320 | Durée de vie : 2932.89
+  Itération 300 | Taille du pool :  330 | Durée de vie : 2950.97
+  Itération 310 | Taille du pool :  340 | Durée de vie : 2971.54
+  Itération 320 | Taille du pool :  350 | Durée de vie : 2980.34
+  Itération 330 | Taille du pool :  360 | Durée de vie : 2994.34
+  Itération 340 | Taille du pool :  370 | Durée de vie : 3010.37
+  Itération 350 | Taille du pool :  380 | Durée de vie : 3023.12
+  Itération 360 | Taille du pool :  390 | Durée de vie : 3030.39
+  Itération 370 | Taille du pool :  400 | Durée de vie : 3041.19
+  Itération 380 | Taille du pool :  410 | Durée de vie : 3047.71
+  Itération 390 | Taille du pool :  420 | Durée de vie : 3054.72
+  Itération 400 | Taille du pool :  430 | Durée de vie : 3062.55
+  Itération 410 | Taille du pool :  440 | Durée de vie : 3072.90
+  Itération 420 | Taille du pool :  450 | Durée de vie : 3079.73
+  Itération 430 | Taille du pool :  460 | Durée de vie : 3084.44
+  Itération 440 | Taille du pool :  470 | Durée de vie : 3088.07
+  Itération 450 | Taille du pool :  480 | Durée de vie : 3092.04
+  Itération 460 | Taille du pool :  490 | Durée de vie : 3094.17
+  Itération 470 | Taille du pool :  500 | Durée de vie : 3095.31
+  Itération 480 | Taille du pool :  510 | Durée de vie : 3095.97
+
+✅ Algorithme terminé en 487 itérations (765.07 secondes).
+=> Le solveur n'a eu besoin que de 516 configurations générées intelligemment.
+=> Durée de vie OPTIMALE ABSOLUE prouvée : 3096.11 (90.08% de la borne)
