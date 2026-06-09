@@ -66,7 +66,33 @@ def construire_config(problem):
     return rendre_elementaire(config, problem)
 
 
-def generer_pool(problem, n_configs=10, seed=None):
+def construire_config_aleatoire(problem):
+    """
+    Heuristique aleatoire : parcourt les zones dans un ordre aleatoire,
+    et pour chaque zone non couverte choisit n'importe quel capteur
+    qui la couvre (sans critere de qualite).
+    Retourne une config elementaire, ou None si impossible.
+    """
+    zones = list(range(problem.M))
+    random.shuffle(zones)
+
+    config = set()
+    zones_couvertes = set()
+
+    for z in zones:
+        if z in zones_couvertes:
+            continue
+        candidats = [k for k in range(problem.N) if z in problem.coverage[k]]
+        if not candidats:
+            return None
+        choisi = random.choice(candidats)
+        config.add(choisi)
+        zones_couvertes |= problem.coverage[choisi]
+
+    return rendre_elementaire(config, problem)
+
+
+def generer_pool(problem, n_configs=10, seed=None, heuristique="greedy"):
     """
     Genere un pool de n_configs configurations elementaires distinctes.
     """
@@ -76,10 +102,12 @@ def generer_pool(problem, n_configs=10, seed=None):
     pool = []
     vus = set()
 
+    fn = construire_config if heuristique == "greedy" else construire_config_aleatoire
+
     tentatives = 0
     while len(pool) < n_configs and tentatives < n_configs * 10:
         tentatives += 1
-        cfg = construire_config(problem)
+        cfg = fn(problem)
         if cfg is not None and cfg not in vus:
             pool.append(cfg)
             vus.add(cfg)
