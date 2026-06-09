@@ -12,6 +12,22 @@ class Problem:
             lines.append(f"  capteur {k+1} : zones {zones}, T={self.lifetimes[k]}")
         return "\n".join(lines)
 
+    def upper_bound(self):
+        """
+        Borne superieure theorique de la duree de vie du reseau.
+        La duree de vie ne peut pas exceder la somme des batteries des capteurs
+        couvrant la zone la plus 'faible' (Manju & Pujari 2011).
+        """
+        sensors_of = [set() for _ in range(self.M)]
+        for k, zones in enumerate(self.coverage):
+            for z in zones:
+                sensors_of[z].add(k)
+                
+        return min(
+            sum(self.lifetimes[k] for k in sensors_of[z])
+            for z in range(self.M)
+        )
+
 
 def load(filepath):
     with open(filepath) as f:

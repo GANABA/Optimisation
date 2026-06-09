@@ -58,3 +58,44 @@ if __name__ == "__main__":
         problem = load(fichier)
         analyse_nombre(problem, nom)
         analyse_type(problem, nom, n_configs=10)
+
+
+def plot_heuristics(problem, nom_instance, max_configs=30, step=5, seed=42):
+    """
+    Génère un graphique montrant l'évolution de la durée de vie en fonction 
+    du nombre de configurations pour les différentes heuristiques.
+    """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("Erreur : matplotlib n'est pas installé. Lancez 'pip install matplotlib'.")
+        return
+
+    n_values = list(range(step, max_configs + 1, step))
+    
+    heuristics = ["greedy", "hef", "aleatoire"]
+    colors = {"greedy": "blue", "hef": "green", "aleatoire": "red"}
+    markers = {"greedy": "-o", "hef": "-s", "aleatoire": "-^"}
+    
+    results = {h: [] for h in heuristics}
+    
+    print(f"\nCalcul en cours pour le graphique ({nom_instance})...")
+    for n in n_values:
+        for h in heuristics:
+            lt = duree_vie(problem, n, h, seed)
+            results[h].append(lt)
+            
+    plt.figure(figsize=(10, 6))
+    for h in heuristics:
+        plt.plot(n_values, results[h], markers[h], color=colors[h], label=h.capitalize())
+        
+    plt.title(f"Influence du nombre de configurations ({nom_instance})")
+    plt.xlabel("Nombre de configurations initiales")
+    plt.ylabel("Durée de vie optimale")
+    plt.legend()
+    plt.grid(True, linestyle=':', alpha=0.7)
+    
+    filename = f"graphique_{nom_instance}.png"
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    print(f"✅ Graphique généré et sauvegardé sous : {filename}")
+

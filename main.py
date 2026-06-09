@@ -16,7 +16,7 @@ INSTANCES = [
 def resoudre_instance(fichier, heuristique="greedy"):
     """Resout une instance et retourne les resultats."""
     problem = load(fichier)
-    pool = generer_pool(problem, n_configs=100, seed=42, heuristique=heuristique)
+    pool = generer_pool(problem, n_configs=10, seed=42, heuristique=heuristique)
 
     debut = time.perf_counter()
     model, t = resoudre(problem, pool)
@@ -35,6 +35,7 @@ def mode_instance(fichier, heuristique="greedy"):
 
     print("=== Partie 1 : donnees ===")
     print(problem)
+    print(f"Borne superieure theorique : {problem.upper_bound():.4f}")
 
     print()
     print("=== Partie 2 : configurations elementaires ===")
@@ -54,8 +55,8 @@ def mode_all():
     print()
 
     # En-tete du tableau
-    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Greedy':>12} {'HEF':>12} {'Aleatoire':>12} {'Temps (s)':>10} {'Statut':>10}")
-    print("-" * 95)
+    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Borne':>8} {'Greedy':>14} {'HEF':>14} {'Aleatoire':>14} {'Temps (s)':>10} {'Statut':>10}")
+    print("-" * 110)
 
     for fichier in INSTANCES:
         try:
@@ -65,21 +66,26 @@ def mode_all():
             res = {}
             temps_total = 0.0
             statut_final = "Inconnu"
+            ub = problem.upper_bound()
             import time
             
             for h in ["greedy", "hef", "aleatoire"]:
                 import pulp
-                pool = generer_pool(problem, n_configs=100, seed=42, heuristique=h)
+                pool = generer_pool(problem, n_configs=10, seed=42, heuristique=h)
                 if not pool:
-                    res[h] = 0.0
+                    res[h] = "0.0"
                     continue
                 debut = time.perf_counter()
                 model, _ = resoudre(problem, pool)
                 temps_total += (time.perf_counter() - debut)
-                res[h] = pulp.value(model.objective) or 0.0
+                
+                lt = pulp.value(model.objective) or 0.0
+                pct = int((lt / ub) * 100) if ub > 0 else 0
+                res[h] = f"{lt:.1f} ({pct}%)"
+                
                 statut_final = pulp.LpStatus[model.status]
                 
-            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {res['greedy']:>12.4f} {res['hef']:>12.4f} {res['aleatoire']:>12.4f} {temps_total:>10.3f} {statut_final:>10}")
+            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {ub:>8.1f} {res['greedy']:>14} {res['hef']:>14} {res['aleatoire']:>14} {temps_total:>10.3f} {statut_final:>10}")
         except FileNotFoundError:
             nom = fichier.replace(".txt", "")
             print(f"{nom:<22} {'fichier introuvable':>49}")
@@ -91,10 +97,17 @@ if len(sys.argv) < 2:
     print("Usage :")
     print("  python main.py <fichier.txt> [greedy|hef|aleatoire]")
     print("  python main.py --all")
+    print("  python main.py --plot <fichier.txt>")
     sys.exit(1)
 
 if sys.argv[1] == "--all":
     mode_all()
+elif sys.argv[1] == "--plot":
+    fichier = sys.argv[2] if len(sys.argv) > 2 else "moyen_test_2.txt"
+    problem = load(fichier)
+    nom = fichier.replace(".txt", "")
+    from analyse import plot_heuristics
+    plot_heuristics(problem, nom)
 else:
     heuristique = sys.argv[2] if len(sys.argv) > 2 else "greedy"
     mode_instance(sys.argv[1], heuristique)
