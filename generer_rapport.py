@@ -240,12 +240,10 @@ story.append(Paragraph(
 ))
 
 story.append(Paragraph(
-    "La duree de vie augmente significativement avec le nombre de configurations jusqu'a "
-    "atteindre un plateau (10 configs pour greedy, 15 pour aleatoire). HEF stagne "
-    "a 166.0 quelle que soit la demande : etant deterministe, il ne produit qu'une seule "
-    "configuration distincte. L'amelioration entre 1 et 20 configs atteint +618 % pour "
-    "l'aleatoire (55.0 -> 395.0). Au-dela du seuil de saturation, le LP ne progresse plus "
-    "car toutes les configurations pertinentes ont ete trouvees.",
+    "La duree de vie augmente jusqu'a un plateau (10 configs pour greedy, 15 pour aleatoire). "
+    "HEF stagne a 166.0 quelle que soit la demande : deterministe, il ne produit qu'une "
+    "configuration distincte. L'amelioration greedy 1->20 configs : 55.0 -> 358.0 (+551 %) ; "
+    "aleatoire : 90.0 -> 395.0 (+339 %).",
     corps
 ))
 
@@ -275,35 +273,28 @@ story.append(Paragraph(
 ))
 
 story.append(Paragraph(
-    "L'aleatoire atteint 100 % de la borne superieure sur moyen_test_2 (104.0/104.0), "
-    "grace a la diversite de ses 30 configurations. Sur les grandes instances, l'ecart "
-    "reste important (28 % pour gros_test_1, 5 % pour maxi_test_1) : un pool de 30 configs "
-    "est insuffisant a cette echelle. HEF produit 1 a 3 configurations distinctes seulement — "
-    "deterministe par nature, il choisit toujours les memes capteurs a haute energie — "
-    "ce qui plafonne la solution LP. L'aleatoire domine sur toutes les instances sauf "
-    "fichier-exemple (egalite avec greedy). Ces resultats confirment qu'une <b>combinaison "
-    "greedy + aleatoire</b> offre le meilleur compromis qualite/diversite.",
+    "L'aleatoire atteint 100 % de la borne sur moyen_test_2 et domine sur toutes les grandes "
+    "instances. HEF ne produit que 1 a 3 configs distinctes (toujours les memes capteurs a "
+    "haute energie) : il plafonne systematiquement. Sur gros_test_1 et maxi_test_1, "
+    "30 configs restent insuffisantes (28 % et 5 % de la borne), montrant les limites de "
+    "l'approche a grande echelle. La <b>combinaison greedy + aleatoire</b> offre le meilleur "
+    "compromis qualite/diversite.",
     corps
 ))
 
-story.append(Spacer(1, 0.2*cm))
-story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=4))
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceBefore=4, spaceAfter=4))
 
 story.append(Paragraph(
     "<b>Conclusion.</b> "
-    "La qualite de la solution depend directement de la richesse du pool de configurations. "
-    "Sur les petites instances (N &lt; 20), 10 a 30 configurations suffisent pour s'approcher "
-    "de la borne superieure. Sur les grandes instances (N = 100-1000), 30 configurations "
-    "restent largement insuffisantes : l'ecart a la borne depasse 70 %. La strategie optimale "
-    "consiste a combiner greedy et aleatoire pour maximiser la diversite tout en preservant "
-    "la qualite individuelle de chaque configuration ; HEF seul est a eviter.",
+    "Sur les petites instances (N &lt; 20), 30 configs suffisent pour atteindre la borne. "
+    "Sur les grandes (N = 100-1000), l'ecart depasse 70 % : il faudrait un pool bien plus "
+    "large. La strategie optimale combine greedy et aleatoire ; HEF seul est a eviter.",
     corps
 ))
 
-story.append(Spacer(1, 0.15*cm))
 story.append(Paragraph(
-    "References : Cardei & Du (2005), Wireless Networks, vol. 11, pp. 333-340.  |  "
-    "Manju & Pujari (2011), arXiv:1103.4769.  |  Deschinkel (2011), SENSORCOMM, Nice.",
+    "References : Cardei &amp; Du (2005), Wireless Networks, vol. 11, pp. 333-340.  |  "
+    "Manju &amp; Pujari (2011), arXiv:1103.4769.  |  Deschinkel (2011), SENSORCOMM, Nice.",
     corps_it
 ))
 
