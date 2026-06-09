@@ -25,7 +25,7 @@ def resoudre(problem, configs):
     for k in range(problem.N):
         configs_avec_k = [cfg for cfg in configs if k in cfg]
         if configs_avec_k:
-            model += pulp.lpSum(t[cfg] for cfg in configs_avec_k) <= problem.lifetimes[k]
+            model += pulp.lpSum(t[cfg] for cfg in configs_avec_k) <= problem.lifetimes[k], f"Battery_{k}"
 
     # --- Resolution ---
     solver = pulp.getSolver("PULP_CBC_CMD", msg=False)
@@ -48,3 +48,18 @@ def afficher_solution(model, t, configs, problem):
         if valeur > 1e-6:  # on n'affiche que les configs actives
             capteurs = sorted(k + 1 for k in cfg)
             print(f"  Capteurs {capteurs} -> actifs pendant {valeur:.4f} unites de temps")
+
+def get_duals(model, problem):
+    """
+    Extrait les valeurs duales (pi_k) associees aux contraintes de batterie.
+    (La valeur duale d'un capteur non contraint est 0)
+    """
+    pi = [0.0] * problem.N
+    for k in range(problem.N):
+        nom_contrainte = f"Battery_{k}"
+        if nom_contrainte in model.constraints:
+            # PuLP stocke la valeur duale dans l'attribut .pi
+            val = model.constraints[nom_contrainte].pi
+            if val is not None:
+                pi[k] = val
+    return pi
