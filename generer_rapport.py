@@ -125,7 +125,7 @@ story.append(Paragraph(
     corps
 ))
 
-story.append(Paragraph("Deux heuristiques ont ete implementees :", corps))
+story.append(Paragraph("Trois heuristiques ont ete implementees :", corps))
 
 data_h = [
     ["Heuristique", "Principe de construction", "Avantage", "Reference"],
@@ -148,7 +148,7 @@ story.append(t_h)
 story.append(Spacer(1, 4))
 
 story.append(Paragraph(
-    "Dans les deux cas, la configuration construite est ensuite rendue elementaire "
+    "Dans les trois cas, la configuration construite est ensuite rendue elementaire "
     "en testant la suppression de chaque capteur dans un ordre aleatoire : si la "
     "couverture totale est maintenue apres suppression, le capteur est retire "
     "definitivement.",
