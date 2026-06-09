@@ -1,7 +1,7 @@
 # Projet : Activation de capteurs pour surveillance de zones
 
 **IUT Nord Franche-Comté** — Techniques d'optimisation  
-**Enseignante** : Karine Deschinkel (2023-2024)
+**Enseignante** : Karine Deschinkel (2025-2026)
 
 ---
 
@@ -61,14 +61,19 @@ PuLP inclut le solveur CBC — pas besoin d'installer GLPK séparément.
 
 ### Résoudre une instance
 ```bash
-python main.py fichier-exemple.txt
-python main.py moyen_test_2.txt
-python main.py gros_test_1.txt
+python main.py fichier-exemple.txt               # heuristique greedy (défaut)
+python main.py moyen_test_2.txt hef              # heuristique HEF
+python main.py gros_test_1.txt aleatoire         # heuristique aléatoire
 ```
 
 ### Résoudre toutes les instances (Partie 4)
 ```bash
 python main.py --all
+```
+
+### Générer un graphique (Partie 5)
+```bash
+python main.py --plot moyen_test_3.txt
 ```
 
 ### Lancer l'analyse comparative (Partie 5)
@@ -114,11 +119,13 @@ Une **configuration élémentaire** est un ensemble de capteurs qui :
 - couvre toutes les zones
 - ne contient aucun capteur superflu (si on en retire un, une zone n'est plus couverte)
 
-Deux heuristiques sont implémentées :
+Trois heuristiques sont implémentées :
 
 **Greedy** (Cardei & Du, 2005) : à chaque étape, choisit le capteur couvrant le plus de zones non encore couvertes. En cas d'égalité, choix aléatoire.
 
-**Aléatoire** (Deschinkel, 2011) : parcourt les zones dans un ordre aléatoire et choisit n'importe quel capteur couvrant la zone courante.
+**HEF — High-Energy-First** (Manju & Pujari, 2011) : à chaque étape, choisit parmi les capteurs utiles celui ayant la plus grande durée de vie initiale. Très déterministe : génère peu de configs distinctes.
+
+**Aléatoire** (Deschinkel, 2011) : parcourt les zones dans un ordre aléatoire et choisit n'importe quel capteur couvrant la zone courante. Maximise la diversité du pool.
 
 ```python
 from data import load
@@ -128,6 +135,9 @@ problem = load("moyen_test_2.txt")
 
 # Générer 10 configs avec l'heuristique greedy
 pool = generer_pool(problem, n_configs=10, seed=42, heuristique="greedy")
+
+# Générer 10 configs avec l'heuristique HEF
+pool = generer_pool(problem, n_configs=10, seed=42, heuristique="hef")
 
 # Générer 10 configs avec l'heuristique aléatoire
 pool = generer_pool(problem, n_configs=10, seed=42, heuristique="aleatoire")

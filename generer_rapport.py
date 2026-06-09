@@ -131,8 +131,12 @@ data_h = [
     ["Heuristique", "Principe de construction", "Avantage", "Reference"],
     ["Greedy\n(gloutonne)",
      "A chaque etape, selectionne le capteur\ncouvrant le plus grand nombre de zones\nnon encore couvertes.\nEn cas d'egalite, choix aleatoire.",
-     "Configurations de\nbonne qualite\nindividuelle",
+     "Configs de bonne\nqualite individuelle",
      "Cardei & Du\n(2005)"],
+    ["HEF\n(High-Energy-\nFirst)",
+     "A chaque etape, selectionne parmi les\ncapteurs utiles celui ayant la plus\ngrande duree de vie (energie) initiale.\nEn cas d'egalite, choix aleatoire.",
+     "Favorise les\ncapteurs a longue\nduree de vie",
+     "Manju &\nPujari\n(2011)"],
     ["Aleatoire",
      "Parcourt les zones dans un ordre\naleatoire. Pour chaque zone non\ncouverte, choisit un capteur\ncouvrant cette zone au hasard.",
      "Grande diversite\ndu pool de\nconfiguration",
@@ -253,10 +257,13 @@ story.append(Paragraph(
 data_type = [
     ["Instance",        "Heuristique", "Configs\nobtenues", "Duree de vie"],
     ["fichier-exemple", "Greedy",      "4",               "8.5000"],
+    ["fichier-exemple", "HEF",         "1",               "6.0000"],
     ["fichier-exemple", "Aleatoire",   "4",               "8.5000"],
     ["moyen_test_2",    "Greedy",      "3",               "15.0000"],
+    ["moyen_test_2",    "HEF",         "2",               "19.0000"],
     ["moyen_test_2",    "Aleatoire",   "10",              "58.0000"],
     ["moyen_test_3",    "Greedy",      "10",              "358.0000"],
+    ["moyen_test_3",    "HEF",         "1",               "166.0000"],
     ["moyen_test_3",    "Aleatoire",   "10",              "342.0000"],
 ]
 t_type = Table(data_type, colWidths=[4.0*cm, 3.2*cm, 3.0*cm, 3.8*cm])
@@ -268,13 +275,13 @@ story.append(Paragraph(
 ))
 
 story.append(Paragraph(
-    "Aucune heuristique ne domine l'autre de facon systematique. Sur moyen_test_2, "
-    "l'aleatoire est nettement superieur (58.0 contre 15.0) car le greedy converge "
-    "toujours vers les memes capteurs dominants et ne produit que 3 configurations "
-    "distinctes. Sur moyen_test_3, le greedy prend l'avantage (358.0 contre 342.0) "
-    "car ses configurations sont individuellement de meilleure qualite. Ces resultats "
-    "suggerent qu'une <b>combinaison des deux heuristiques</b> produirait les meilleurs "
-    "pools de configurations : diversite de l'aleatoire associee a la qualite du greedy.",
+    "L'aleatoire domine sur moyen_test_2 (58.0) grace a sa grande diversite (10 configs). "
+    "Le greedy est meilleur sur moyen_test_3 (358.0 contre 342.0). "
+    "HEF est tres deterministe : il produit 1 a 2 configs distinctes seulement, "
+    "car il choisit toujours les memes capteurs a haute energie — ce qui limite fortement "
+    "la qualite de la solution LP. Ces resultats suggerent qu'une <b>combinaison "
+    "greedy + aleatoire</b> produit les meilleurs pools : qualite du greedy et diversite "
+    "de l'aleatoire.",
     corps
 ))
 
