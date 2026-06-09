@@ -92,7 +92,7 @@ story = []
 W = A4[0] - 2 * MARGE_H
 entete_data = [[
     Paragraph("I.U.T. Nord Franche-Comte<br/>Techniques d'optimisation - Karine Deschinkel", entete_gauche),
-    Paragraph("2023-2024", entete_droit)
+    Paragraph("2025-2026", entete_droit)
 ]]
 entete_table = Table(entete_data, colWidths=[W * 0.7, W * 0.3])
 entete_table.setStyle(TableStyle([
