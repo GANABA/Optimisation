@@ -1,206 +1,257 @@
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import cm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, PageBreak
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+    HRFlowable, PageBreak, KeepTogether
 )
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 
 OUTPUT = "rapport_capteurs.pdf"
-W, H = A4
-MARGE = 2 * cm
+MARGE_H = 2.2 * cm
+MARGE_V = 1.8 * cm
 
 doc = SimpleDocTemplate(
     OUTPUT, pagesize=A4,
-    leftMargin=MARGE, rightMargin=MARGE,
-    topMargin=1.5 * cm, bottomMargin=1.5 * cm
+    leftMargin=MARGE_H, rightMargin=MARGE_H,
+    topMargin=MARGE_V, bottomMargin=MARGE_V
 )
 
-# ── Styles ──────────────────────────────────────────────────────────────────
-styles = getSampleStyleSheet()
+# ── Styles (Times-Roman comme LaTeX) ────────────────────────────────────────
 
-titre_principal = ParagraphStyle(
-    "titre_principal",
-    fontSize=14, fontName="Helvetica-Bold",
-    alignment=TA_CENTER, spaceAfter=4
+entete_gauche = ParagraphStyle(
+    "entete_gauche",
+    fontName="Times-Roman", fontSize=9,
+    alignment=TA_LEFT, leading=13
 )
-sous_titre = ParagraphStyle(
-    "sous_titre",
-    fontSize=9, fontName="Helvetica",
-    alignment=TA_CENTER, spaceAfter=2, textColor=colors.HexColor("#555555")
+entete_droit = ParagraphStyle(
+    "entete_droit",
+    fontName="Times-Roman", fontSize=9,
+    alignment=TA_RIGHT, leading=13
+)
+titre = ParagraphStyle(
+    "titre",
+    fontName="Times-Bold", fontSize=13,
+    alignment=TA_CENTER, spaceBefore=6, spaceAfter=8, leading=16
 )
 section = ParagraphStyle(
     "section",
-    fontSize=11, fontName="Helvetica-Bold",
-    spaceBefore=10, spaceAfter=4,
-    textColor=colors.HexColor("#1a3a6b")
+    fontName="Times-Bold", fontSize=12,
+    spaceBefore=10, spaceAfter=4, leading=15
+)
+sous_section = ParagraphStyle(
+    "sous_section",
+    fontName="Times-Bold", fontSize=10.5,
+    spaceBefore=7, spaceAfter=3, leading=13
 )
 corps = ParagraphStyle(
     "corps",
-    fontSize=8.5, fontName="Helvetica",
-    alignment=TA_JUSTIFY, spaceAfter=4, leading=13
+    fontName="Times-Roman", fontSize=10.5,
+    alignment=TA_JUSTIFY, spaceAfter=5, leading=14
 )
-corps_bold = ParagraphStyle(
-    "corps_bold",
-    fontSize=8.5, fontName="Helvetica-Bold",
-    spaceAfter=2, leading=13
-)
-legende = ParagraphStyle(
-    "legende",
-    fontSize=7.5, fontName="Helvetica-Oblique",
-    alignment=TA_CENTER, spaceAfter=6,
-    textColor=colors.HexColor("#555555")
+corps_it = ParagraphStyle(
+    "corps_it",
+    fontName="Times-Italic", fontSize=9,
+    alignment=TA_CENTER, spaceAfter=4, leading=12,
+    textColor=colors.HexColor("#444444")
 )
 
-# ── Couleurs tableau ────────────────────────────────────────────────────────
-BLEU_HEADER = colors.HexColor("#1a3a6b")
-BLEU_CLAIR  = colors.HexColor("#dce6f1")
-GRIS_LIGNE  = colors.HexColor("#f5f5f5")
-
-def style_tableau(nb_cols):
+def style_tableau_latex():
+    """Tableau style LaTeX : bordures noires, pas de couleur."""
     return TableStyle([
-        ("BACKGROUND",  (0, 0), (-1, 0),  BLEU_HEADER),
-        ("TEXTCOLOR",   (0, 0), (-1, 0),  colors.white),
-        ("FONTNAME",    (0, 0), (-1, 0),  "Helvetica-Bold"),
-        ("FONTSIZE",    (0, 0), (-1, -1), 8),
-        ("ALIGN",       (0, 0), (-1, -1), "CENTER"),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, GRIS_LIGNE]),
-        ("GRID",        (0, 0), (-1, -1), 0.4, colors.HexColor("#bbbbbb")),
-        ("TOPPADDING",  (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        # Ligne double simulee en haut (deux lignes fines)
+        ("LINEABOVE",    (0, 0), (-1, 0),  1.2, colors.black),
+        # Ligne sous l'en-tete
+        ("LINEBELOW",    (0, 0), (-1, 0),  0.8, colors.black),
+        # Ligne double simulee en bas
+        ("LINEBELOW",    (0, -1), (-1, -1), 1.2, colors.black),
+        # Lignes verticales
+        ("LINEBEFORE",   (0, 0), (0, -1),  0.5, colors.black),
+        ("LINEAFTER",    (-1, 0), (-1, -1), 0.5, colors.black),
+        # Police en-tete : gras
+        ("FONTNAME",     (0, 0), (-1, 0),  "Times-Bold"),
+        ("FONTSIZE",     (0, 0), (-1, -1), 10),
+        ("FONTNAME",     (0, 1), (-1, -1), "Times-Roman"),
+        # Alignement
+        ("ALIGN",        (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN",       (0, 0), (-1, -1), "MIDDLE"),
+        # Padding
+        ("TOPPADDING",   (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING",(0, 0), (-1, -1), 4),
+        ("LEFTPADDING",  (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        # Lignes internes legeres
+        ("INNERGRID",    (0, 1), (-1, -1), 0.3, colors.HexColor("#888888")),
     ])
 
-# ── Contenu ─────────────────────────────────────────────────────────────────
+# ── Construction du document ─────────────────────────────────────────────────
 story = []
 
-# En-tête
-story.append(Paragraph("Probleme d'activation de capteurs pour surveillance de zones", titre_principal))
-story.append(Paragraph("IUT Nord Franche-Comte  |  Techniques d'optimisation  |  Karine Deschinkel  |  2023-2024", sous_titre))
-story.append(HRFlowable(width="100%", thickness=1.5, color=BLEU_HEADER, spaceAfter=8))
+# En-tete (institution + annee sur la meme ligne)
+W = A4[0] - 2 * MARGE_H
+entete_data = [[
+    Paragraph("I.U.T. Nord Franche-Comte<br/>Techniques d'optimisation - Karine Deschinkel", entete_gauche),
+    Paragraph("2023-2024", entete_droit)
+]]
+entete_table = Table(entete_data, colWidths=[W * 0.7, W * 0.3])
+entete_table.setStyle(TableStyle([
+    ("VALIGN",  (0, 0), (-1, -1), "TOP"),
+    ("TOPPADDING",   (0, 0), (-1, -1), 0),
+    ("BOTTOMPADDING",(0, 0), (-1, -1), 0),
+    ("LEFTPADDING",  (0, 0), (-1, -1), 0),
+    ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+]))
+story.append(entete_table)
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=4))
 
-# ── SECTION 1 ────────────────────────────────────────────────────────────────
-story.append(Paragraph("1. Construction des configurations elementaires", section))
+# Titre principal
+story.append(Paragraph(
+    "Rapport : Probleme d'activation de capteurs pour surveillance de zones",
+    titre
+))
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=6))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 1
+# ═══════════════════════════════════════════════════════════════════════════════
+story.append(Paragraph("1  Construction des configurations elementaires", section))
 
 story.append(Paragraph(
-    "Une <b>configuration elementaire</b> est un ensemble minimal de capteurs couvrant toutes les zones : "
-    "aucun capteur ne peut etre retire sans laisser une zone non surveillee. "
-    "Ces configurations constituent les variables du programme lineaire.",
+    "Une <b>configuration elementaire</b> est un ensemble minimal de capteurs couvrant "
+    "toutes les zones de surveillance : aucun capteur ne peut etre retire sans laisser "
+    "au moins une zone non couverte. Ces configurations constituent les variables du "
+    "programme lineaire d'ordonnancement.",
     corps
 ))
 
-story.append(Paragraph("Deux heuristiques ont ete implementees :", corps_bold))
+story.append(Paragraph("Deux heuristiques ont ete implementees :", corps))
 
-# Tableau heuristiques
 data_h = [
-    ["Heuristique", "Principe", "Avantage", "Source"],
+    ["Heuristique", "Principe de construction", "Avantage", "Reference"],
     ["Greedy\n(gloutonne)",
-     "A chaque etape, choisit le capteur\ncouvrant le plus de zones non\nencore couvertes. En cas d'egalite,\nchoix aleatoire.",
-     "Configs de bonne\nqualite individuelle",
+     "A chaque etape, selectionne le capteur\ncouvrant le plus grand nombre de zones\nnon encore couvertes.\nEn cas d'egalite, choix aleatoire.",
+     "Configurations de\nbonne qualite\nindividuelle",
      "Cardei & Du\n(2005)"],
     ["Aleatoire",
-     "Parcourt les zones dans un ordre\naleatoire, choisit n'importe quel\ncapteur couvrant la zone courante.",
-     "Grande diversite\nde configurations",
+     "Parcourt les zones dans un ordre\naleatoire. Pour chaque zone non\ncouverte, choisit un capteur\ncouvrant cette zone au hasard.",
+     "Grande diversite\ndu pool de\nconfiguration",
      "Deschinkel\n(2011)"],
 ]
-t_h = Table(data_h, colWidths=[2.8*cm, 6.5*cm, 3.5*cm, 2.8*cm])
-t_h.setStyle(style_tableau(4))
+t_h = Table(data_h, colWidths=[2.6*cm, 6.8*cm, 3.2*cm, 2.6*cm])
+t_h.setStyle(style_tableau_latex())
 story.append(t_h)
+story.append(Spacer(1, 4))
+
 story.append(Paragraph(
-    "Dans les deux cas, la configuration est ensuite rendue elementaire en testant "
-    "la suppression de chaque capteur (ordre aleatoire) : si la suppression maintient "
-    "la couverture totale, le capteur est retire.",
+    "Dans les deux cas, la configuration construite est ensuite rendue elementaire "
+    "en testant la suppression de chaque capteur dans un ordre aleatoire : si la "
+    "couverture totale est maintenue apres suppression, le capteur est retire "
+    "definitivement.",
     corps
 ))
 
-# ── SECTION 2 ────────────────────────────────────────────────────────────────
-story.append(Paragraph("2. Solutions obtenues sur les instances (Partie 4)", section))
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 2
+# ═══════════════════════════════════════════════════════════════════════════════
+story.append(Paragraph("2  Solutions obtenues sur les instances", section))
 
 story.append(Paragraph(
-    "Le programme lineaire est resolu avec le solveur CBC (via PuLP, equivalent Python de GLPK). "
-    "Les resultats suivants sont obtenus avec 10 configurations elementaires generees par l'heuristique greedy (seed=42) :",
+    "Le programme lineaire est formule et resolu avec la bibliotheque PuLP (solveur CBC, "
+    "equivalent libre de GLPK). Les resultats suivants sont obtenus avec 10 configurations "
+    "elementaires generees par heuristique greedy (graine aleatoire fixee : seed = 42) :",
     corps
 ))
 
 data_res = [
-    ["Instance", "N capteurs", "M zones", "Configs\ngenerees", "Duree de vie\nobtenue", "Temps (s)", "Statut"],
+    ["Instance", "N", "M", "Configs\ngenerees", "Duree de vie\nobtenue", "Temps (s)", "Statut"],
     ["fichier-exemple",  "4",   "3",   "4",  "8.5000",    "0.13", "Optimal"],
     ["moyen_test_2",     "20",  "10",  "3",  "15.0000",   "0.17", "Optimal"],
     ["moyen_test_3",     "10",  "10",  "10", "358.0000",  "0.06", "Optimal"],
     ["gros_test_1",      "100", "200", "10", "177.0000",  "0.20", "Optimal"],
 ]
-t_res = Table(data_res, colWidths=[3.5*cm, 2*cm, 1.8*cm, 2*cm, 2.8*cm, 2*cm, 1.8*cm])
-t_res.setStyle(style_tableau(7))
+t_res = Table(data_res, colWidths=[3.6*cm, 1.2*cm, 1.2*cm, 2.2*cm, 3.0*cm, 2.2*cm, 2.0*cm])
+t_res.setStyle(style_tableau_latex())
 story.append(t_res)
+story.append(Spacer(1, 4))
 
 story.append(Paragraph(
-    "L'instance fichier-exemple atteint l'optimum prouve (8.5) documente dans le sujet. "
-    "Pour moyen_test_2, seulement 3 configurations distinctes sont trouvees par le greedy, "
-    "ce qui limite la qualite de la solution — l'impact du nombre de configurations est analyse en Partie 5.",
+    "L'instance fichier-exemple atteint l'optimum prouve de 8.5 documente dans le sujet, "
+    "ce qui valide l'implementation. Pour moyen_test_2, le greedy ne produit que 3 "
+    "configurations distinctes, ce qui limite la qualite — ce phenomene est analyse "
+    "en section 3.",
     corps
 ))
 
-# ── PAGE 2 ───────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 2
+# ═══════════════════════════════════════════════════════════════════════════════
 story.append(PageBreak())
 
-story.append(Paragraph("Probleme d'activation de capteurs — Analyse des resultats", titre_principal))
-story.append(HRFlowable(width="100%", thickness=1.5, color=BLEU_HEADER, spaceAfter=8))
+# En-tete page 2
+story.append(entete_table)
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=4))
+story.append(Paragraph(
+    "Rapport : Probleme d'activation de capteurs — Analyse des resultats",
+    titre
+))
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=6))
 
-# ── SECTION 3 ────────────────────────────────────────────────────────────────
-story.append(Paragraph("3. Analyse des resultats (Partie 5)", section))
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 3
+# ═══════════════════════════════════════════════════════════════════════════════
+story.append(Paragraph("3  Analyse des resultats", section))
 
 story.append(Paragraph(
     "Pour un meme probleme, nous examinons l'influence du <b>nombre</b> et du <b>type</b> "
-    "des configurations elementaires sur la duree de vie du reseau.",
+    "des configurations elementaires choisies sur la duree de vie du reseau.",
     corps
 ))
 
-# 3a - Influence du nombre
-story.append(Paragraph("3.1  Influence du nombre de configurations", corps_bold))
+# 3.1
+story.append(Paragraph("3.1  Influence du nombre de configurations", sous_section))
+
 story.append(Paragraph(
-    "Resultats sur moyen_test_3 (N=10, M=10) avec l'heuristique greedy :",
+    "Le tableau suivant presente la duree de vie obtenue sur moyen_test_3 (N=10, M=10) "
+    "en faisant varier le nombre de configurations pour chacune des deux heuristiques :",
     corps
 ))
 
 data_nb = [
-    ["Nb configs", "1", "2", "3", "5", "10", "15", "20"],
+    ["Heuristique \\ Nb configs", "1", "2", "3", "5", "10", "15", "20"],
     ["Greedy",     "55.0", "127.0", "166.0", "268.5", "358.0", "358.0", "358.0"],
     ["Aleatoire",  "90.0", "109.0", "163.0", "235.0", "342.0", "395.0", "395.0"],
 ]
-t_nb = Table(data_nb, colWidths=[2.8*cm, 1.7*cm, 1.7*cm, 1.7*cm, 1.7*cm, 1.7*cm, 1.7*cm, 1.7*cm])
-t_nb.setStyle(TableStyle([
-    ("BACKGROUND",  (0, 0), (-1, 0),  BLEU_HEADER),
-    ("TEXTCOLOR",   (0, 0), (-1, 0),  colors.white),
-    ("FONTNAME",    (0, 0), (-1, 0),  "Helvetica-Bold"),
-    ("BACKGROUND",  (0, 1), (0, -1),  BLEU_CLAIR),
-    ("FONTNAME",    (0, 1), (0, -1),  "Helvetica-Bold"),
-    ("FONTSIZE",    (0, 0), (-1, -1), 8),
-    ("ALIGN",       (0, 0), (-1, -1), "CENTER"),
-    ("GRID",        (0, 0), (-1, -1), 0.4, colors.HexColor("#bbbbbb")),
-    ("TOPPADDING",  (0, 0), (-1, -1), 4),
-    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-]))
+col_w = [3.8*cm] + [1.55*cm]*7
+t_nb = Table(data_nb, colWidths=col_w)
+t_nb.setStyle(style_tableau_latex())
 story.append(t_nb)
 story.append(Paragraph(
-    "Tableau 1 — Duree de vie en fonction du nombre de configurations (instance moyen_test_3)",
-    legende
+    "Tableau 1 - Duree de vie en fonction du nombre de configurations (instance moyen_test_3)",
+    corps_it
 ))
 
 story.append(Paragraph(
-    "<b>Observation :</b> la duree de vie augmente significativement avec le nombre de configurations "
-    "jusqu'a saturation (plateau a partir de 10-15 configs). Avec 1 seule configuration, on obtient "
-    "seulement 55.0 contre 395.0 avec 20 configs, soit une amelioration de +618%. "
-    "Au-dela d'un certain seuil, ajouter des configurations n'apporte plus de gain : "
-    "toutes les configurations pertinentes ont ete trouvees.",
+    "La duree de vie augmente significativement avec le nombre de configurations jusqu'a "
+    "atteindre un plateau (a partir de 10 configs pour le greedy, 15 pour l'aleatoire). "
+    "Avec une seule configuration, on obtient 55.0 contre 395.0 avec 20 configurations, "
+    "soit une amelioration de +618 %. Au-dela du seuil de saturation, ajouter de nouvelles "
+    "configurations n'apporte plus de gain : toutes les configurations pertinentes ont ete "
+    "trouvees et le LP atteint sa solution optimale sur ce pool.",
     corps
 ))
 
-# 3b - Influence du type
-story.append(Spacer(1, 0.2*cm))
-story.append(Paragraph("3.2  Influence du type d'heuristique", corps_bold))
+# 3.2
+story.append(Paragraph("3.2  Influence du type d'heuristique", sous_section))
+
+story.append(Paragraph(
+    "Le tableau suivant compare les deux heuristiques avec 10 configurations demandees "
+    "sur chaque instance :",
+    corps
+))
 
 data_type = [
-    ["Instance",        "Heuristique", "Configs reelles", "Duree de vie"],
+    ["Instance",        "Heuristique", "Configs\nobtenues", "Duree de vie"],
     ["fichier-exemple", "Greedy",      "4",               "8.5000"],
     ["fichier-exemple", "Aleatoire",   "4",               "8.5000"],
     ["moyen_test_2",    "Greedy",      "3",               "15.0000"],
@@ -208,45 +259,44 @@ data_type = [
     ["moyen_test_3",    "Greedy",      "10",              "358.0000"],
     ["moyen_test_3",    "Aleatoire",   "10",              "342.0000"],
 ]
-t_type = Table(data_type, colWidths=[4*cm, 3*cm, 3.5*cm, 3.5*cm])
-t_type.setStyle(style_tableau(4))
+t_type = Table(data_type, colWidths=[4.0*cm, 3.2*cm, 3.0*cm, 3.8*cm])
+t_type.setStyle(style_tableau_latex())
 story.append(t_type)
 story.append(Paragraph(
-    "Tableau 2 — Comparaison des deux heuristiques avec 10 configurations demandees",
-    legende
+    "Tableau 2 - Comparaison des heuristiques avec 10 configurations demandees",
+    corps_it
 ))
 
 story.append(Paragraph(
-    "<b>Observation :</b> aucune heuristique ne domine l'autre systematiquement. "
-    "Sur moyen_test_2, l'aleatoire est nettement superieur (58.0 vs 15.0) car le greedy converge "
-    "toujours vers les memes capteurs dominants et ne produit que 3 configs distinctes. "
-    "Sur moyen_test_3, le greedy prend l'avantage (358.0 vs 342.0) car ses configs sont "
-    "individuellement de meilleure qualite. "
-    "Ces resultats suggerent qu'une <b>combinaison des deux heuristiques</b> produirait "
-    "les meilleurs pools : diversite de l'aleatoire + qualite du greedy.",
+    "Aucune heuristique ne domine l'autre de facon systematique. Sur moyen_test_2, "
+    "l'aleatoire est nettement superieur (58.0 contre 15.0) car le greedy converge "
+    "toujours vers les memes capteurs dominants et ne produit que 3 configurations "
+    "distinctes. Sur moyen_test_3, le greedy prend l'avantage (358.0 contre 342.0) "
+    "car ses configurations sont individuellement de meilleure qualite. Ces resultats "
+    "suggerent qu'une <b>combinaison des deux heuristiques</b> produirait les meilleurs "
+    "pools de configurations : diversite de l'aleatoire associee a la qualite du greedy.",
     corps
 ))
 
-# Conclusion
-story.append(Spacer(1, 0.3*cm))
-story.append(HRFlowable(width="100%", thickness=0.8, color=BLEU_HEADER, spaceAfter=6))
-story.append(Paragraph("Conclusion", corps_bold))
+story.append(Spacer(1, 0.2*cm))
+story.append(HRFlowable(width="100%", thickness=0.5, color=colors.black, spaceAfter=4))
+
 story.append(Paragraph(
+    "<b>Conclusion.</b> "
     "La qualite de la solution depend directement de la richesse du pool de configurations. "
-    "Un pool trop petit ou trop homogene bride le programme lineaire. "
-    "La strategie optimale consiste a generer un nombre suffisant de configurations (>= 10) "
-    "en alternant les deux heuristiques pour maximiser la diversite tout en conservant la qualite.",
+    "Un pool trop petit ou trop homogene bride le programme lineaire. La strategie optimale "
+    "consiste a generer au moins 10 configurations en alternant les deux heuristiques "
+    "pour maximiser la diversite tout en preservant la qualite individuelle de chaque configuration.",
     corps
 ))
 
-story.append(Spacer(1, 0.4*cm))
+story.append(Spacer(1, 0.15*cm))
 story.append(Paragraph(
-    "References : Cardei &amp; Du (2005) — Wireless Networks | "
-    "Manju &amp; Pujari (2011) — arXiv:1103.4769 | "
-    "Deschinkel (2011) — SENSORCOMM",
-    legende
+    "References : Cardei & Du (2005), Wireless Networks, vol. 11, pp. 333-340.  |  "
+    "Manju & Pujari (2011), arXiv:1103.4769.  |  Deschinkel (2011), SENSORCOMM, Nice.",
+    corps_it
 ))
 
-# ── Build ────────────────────────────────────────────────────────────────────
+# ── Generation ───────────────────────────────────────────────────────────────
 doc.build(story)
 print(f"Rapport genere : {OUTPUT}")
