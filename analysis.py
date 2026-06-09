@@ -127,3 +127,50 @@ def run_all_instances(filepaths: list[str],
               f"{fmt(results['hef']):>{col_w}} "
               f"{fmt(results['rnd']):>{col_w}} "
               f"{fmt(results['cg']):>{col_w}}")
+
+
+def plot_heuristics(problem: Problem, max_configs: int = 30, step: int = 5, n_runs: int = 3, seed: int = 0) -> None:
+    """
+    Génère un graphique montrant l'évolution de la durée de vie en fonction 
+    du nombre de configurations pour les différentes heuristiques.
+    """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("Erreur : matplotlib n'est pas installé. Lancez 'pip install matplotlib' pour générer les graphiques.")
+        return
+
+    n_values = list(range(step, max_configs + 1, step))
+    
+    heuristics = [
+        ("Greedy-Critique", greedy_critical_target, "blue", "-o"),
+        ("HEF", greedy_high_energy, "green", "-s"),
+        ("Aleatoire", random_cover, "red", "-^"),
+    ]
+    
+    results = {name: [] for name, _, _, _ in heuristics}
+    
+    ub = problem.upper_bound()
+    print(f"Calcul en cours (Borne sup: {ub:.2f})...")
+    
+    for n in n_values:
+        print(f"  Test avec n_configs = {n}")
+        for name, fn, _, _ in heuristics:
+            lt, _ = _run_with_pool(problem, fn, n, n_runs, seed)
+            results[name].append(lt)
+            
+    plt.figure(figsize=(10, 6))
+    for name, _, color, marker in heuristics:
+        plt.plot(n_values, results[name], marker, color=color, label=name)
+        
+    plt.axhline(y=ub, color='black', linestyle='--', label="Borne Supérieure")
+    
+    plt.title("Influence du nombre de configurations sur la durée de vie")
+    plt.xlabel("Nombre de configurations initiales")
+    plt.ylabel("Durée de vie optimale")
+    plt.legend()
+    plt.grid(True, linestyle=':', alpha=0.7)
+    
+    filename = "comparaison_heuristiques.png"
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    print(f"\n✅ Graphique généré et sauvegardé sous : {filename}")

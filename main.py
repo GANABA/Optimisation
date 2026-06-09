@@ -4,6 +4,7 @@ Point d'entrée principal.
 Usage :
   python main.py <fichier>              -- résout une instance (col. gen. mixte)
   python main.py <fichier> --compare    -- compare les 3 heuristiques
+  python main.py <fichier> --plot       -- génère un graphique de comparaison
   python main.py --all                  -- résout toutes les instances connues
   python main.py <fichier> --verbose    -- affiche les itérations col. gen.
 """
@@ -13,7 +14,7 @@ import os
 from data import load
 from lp_solver import print_solution
 from column_generation import column_generation
-from analysis import compare_heuristics, run_all_instances
+from analysis import compare_heuristics, run_all_instances, plot_heuristics
 
 INSTANCES = [
     "fichier-exemple.txt",
@@ -52,6 +53,11 @@ def main():
         n_configs = 30
         print(f"Comparaison des heuristiques (pool={n_configs} configs, 5 runs)\n")
         compare_heuristics(problem, n_configs=n_configs)
+        return
+
+    if "--plot" in args:
+        print("Génération du graphique de comparaison...\n")
+        plot_heuristics(problem)
         return
 
     verbose = "--verbose" in args
