@@ -206,26 +206,27 @@ story.append(Paragraph(
 
 data_cmp = [
     ["Instance",        "V1 - Aleatoire\n(30 configs)", "V2 - Gen. colonnes\n(pool initial 30)", "Iterations\nV2", "Temps\nV2"],
-    ["fichier-exemple", "8.5 (94 %)",    "8.5 (94 %)",    "1",  "0.04 s"],
-    ["moyen_test_2",    "104.0 (100 %)", "104.0 (100 %)", "1",  "0.05 s"],
-    ["moyen_test_3",    "395.0 (85 %)",  "395.0 (85 %)",  "1",  "0.04 s"],
-    ["gros_test_1",     "992.0 (28 %)",  "—",             "—",  "long"],
-    ["maxi_test_1",     "1463.0 (5 %)",  "—",             "—",  "long"],
+    ["fichier-exemple", "8.5 (94 %)",     "8.5 (94 %)",     "1",   "0.04 s"],
+    ["moyen_test_2",    "104.0 (100 %)",  "104.0 (100 %)",  "1",   "0.05 s"],
+    ["moyen_test_3",    "395.0 (85 %)",   "395.0 (85 %)",   "1",   "0.04 s"],
+    ["gros_test_1",     "992.0 (28 %)",   "3096.1 (90 %)",  "487", "1135 s"],
+    ["maxi_test_1",     "1463.0 (5 %)",   "—",              "—",   "—"],
 ]
 t_cmp = Table(data_cmp, colWidths=[3.4*cm, 3.8*cm, 4.0*cm, 2.2*cm, 2.1*cm])
 t_cmp.setStyle(style_tableau_latex())
 story.append(t_cmp)
 story.append(Paragraph(
-    "Tableau 2 - Comparaison V1 vs V2 (borne superieure : fichier-exemple=9.0, moyen_test_2=104.0, moyen_test_3=463.0)",
+    "Tableau 2 - Comparaison V1 vs V2 (bornes : fichier-exemple=9.0, moyen_test_2=104.0, moyen_test_3=463.0, gros_test_1=3437.0)",
     corps_it
 ))
 
 story.append(Paragraph(
     "Sur les petites instances, V2 termine en <b>1 iteration</b> : le pool aleatoire initial "
-    "contient deja toutes les configurations necessaires. Sur les grandes instances, le "
-    "sous-probleme de pricing (set cover, NP-difficile) devient trop lent. "
-    "Cela illustre la limite classique de la generation de colonnes : l'oracle exact est "
-    "prohibitif quand N et M sont grands.",
+    "contient deja toutes les configurations necessaires. Sur gros_test_1, V2 passe de "
+    "<b>28 % a 90 %</b> de la borne en 487 iterations (516 configurations, 1135 s), "
+    "illustrant la puissance de la methode exacte mais aussi son cout en temps de calcul. "
+    "maxi_test_1 (N=1000) reste hors de portee : le pricing PLNE, NP-difficile, "
+    "ne passe pas a cette echelle.",
     corps
 ))
 
