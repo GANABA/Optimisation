@@ -19,13 +19,14 @@ def analyse_nombre(problem, nom_instance):
     On fait varier n_configs et on observe le resultat.
     """
     print(f"\n--- Influence du nombre de configs ({nom_instance}) ---")
-    print(f"{'N configs':>10} {'Greedy':>12} {'Aleatoire':>12}")
-    print("-" * 38)
+    print(f"{'N configs':>10} {'Greedy':>12} {'HEF':>12} {'Aleatoire':>12}")
+    print("-" * 51)
 
     for n in [1, 2, 3, 5, 10, 15, 20]:
         lt_greedy = duree_vie(problem, n, "greedy")
+        lt_hef    = duree_vie(problem, n, "hef")
         lt_alea   = duree_vie(problem, n, "aleatoire")
-        print(f"{n:>10} {lt_greedy:>12.4f} {lt_alea:>12.4f}")
+        print(f"{n:>10} {lt_greedy:>12.4f} {lt_hef:>12.4f} {lt_alea:>12.4f}")
 
 
 def analyse_type(problem, nom_instance, n_configs=10):
@@ -37,7 +38,7 @@ def analyse_type(problem, nom_instance, n_configs=10):
     print(f"{'Heuristique':<15} {'Duree de vie':>14} {'Nb configs reels':>18}")
     print("-" * 50)
 
-    for nom_h in ["greedy", "aleatoire"]:
+    for nom_h in ["greedy", "hef", "aleatoire"]:
         pool = generer_pool(problem, n_configs=n_configs, seed=42, heuristique=nom_h)
         model, t = resoudre(problem, pool)
         lt = pulp.value(model.objective) or 0.0

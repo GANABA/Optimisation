@@ -92,7 +92,38 @@ def construire_config_aleatoire(problem):
     return rendre_elementaire(config, problem)
 
 
-def generer_pool(problem, n_configs=10, seed=None, heuristique="greedy"):
+def construire_config_hef(problem):
+    """
+    Heuristique HEF (High-Energy-First) : construit une configuration valide.
+    (Inspirée des travaux de Manju & Pujari, 2011)
+    
+    A chaque etape, choisit parmi les capteurs utiles celui ayant 
+    la plus grande duree de vie (energie) initiale.
+    Retourne une config elementaire, ou None si impossible.
+    """
+    zones_non_couvertes = set(range(problem.M))
+    capteurs_disponibles = set(range(problem.N))
+    config = set()
+
+    while zones_non_couvertes:
+        # Garder uniquement les capteurs qui apportent de nouvelles zones
+        utiles = [k for k in capteurs_disponibles if len(problem.coverage[k] & zones_non_couvertes) > 0]
+        if not utiles:
+            return None  # impossible de couvrir toutes les zones
+
+        # Choisir celui qui a la plus grande durée de vie (High Energy)
+        max_energie = max(problem.lifetimes[k] for k in utiles)
+        meilleurs = [k for k in utiles if problem.lifetimes[k] == max_energie]
+        choisi = random.choice(meilleurs)
+
+        config.add(choisi)
+        zones_non_couvertes -= problem.coverage[choisi]
+        capteurs_disponibles.remove(choisi)
+
+    return rendre_elementaire(config, problem)
+
+
+def generer_pool(problem, n_configs=100, seed=None, heuristique="greedy"):
     """
     Genere un pool de n_configs configurations elementaires distinctes.
     """
@@ -102,7 +133,12 @@ def generer_pool(problem, n_configs=10, seed=None, heuristique="greedy"):
     pool = []
     vus = set()
 
-    fn = construire_config if heuristique == "greedy" else construire_config_aleatoire
+    if heuristique == "greedy":
+        fn = construire_config
+    elif heuristique == "hef":
+        fn = construire_config_hef
+    else:
+        fn = construire_config_aleatoire
 
     tentatives = 0
     while len(pool) < n_configs and tentatives < n_configs * 10:

@@ -9,13 +9,14 @@ INSTANCES = [
     "moyen_test_2.txt",
     "moyen_test_3.txt",
     "gros_test_1.txt",
+    "maxi_test_1.txt"
 ]
 
 
-def resoudre_instance(fichier):
+def resoudre_instance(fichier, heuristique="greedy"):
     """Resout une instance et retourne les resultats."""
     problem = load(fichier)
-    pool = generer_pool(problem, n_configs=10, seed=42)
+    pool = generer_pool(problem, n_configs=100, seed=42, heuristique=heuristique)
 
     debut = time.perf_counter()
     model, t = resoudre(problem, pool)
@@ -28,9 +29,9 @@ def resoudre_instance(fichier):
     return problem, pool, model, t, duree_vie, duree, statut
 
 
-def mode_instance(fichier):
+def mode_instance(fichier, heuristique="greedy"):
     """Affiche le detail complet pour une instance."""
-    problem, pool, model, t, duree_vie, duree, statut = resoudre_instance(fichier)
+    problem, pool, model, t, duree_vie, duree, statut = resoudre_instance(fichier, heuristique)
 
     print("=== Partie 1 : donnees ===")
     print(problem)
@@ -53,14 +54,32 @@ def mode_all():
     print()
 
     # En-tete du tableau
-    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Configs':>8} {'Duree de vie':>14} {'Temps (s)':>10} {'Statut':>10}")
-    print("-" * 78)
+    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Greedy':>12} {'HEF':>12} {'Aleatoire':>12} {'Temps (s)':>10} {'Statut':>10}")
+    print("-" * 95)
 
     for fichier in INSTANCES:
         try:
-            problem, pool, model, t, duree_vie, duree, statut = resoudre_instance(fichier)
+            problem = load(fichier)
             nom = fichier.replace(".txt", "")
-            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {len(pool):>8} {duree_vie:>14.4f} {duree:>10.3f} {statut:>10}")
+            
+            res = {}
+            temps_total = 0.0
+            statut_final = "Inconnu"
+            import time
+            
+            for h in ["greedy", "hef", "aleatoire"]:
+                import pulp
+                pool = generer_pool(problem, n_configs=100, seed=42, heuristique=h)
+                if not pool:
+                    res[h] = 0.0
+                    continue
+                debut = time.perf_counter()
+                model, _ = resoudre(problem, pool)
+                temps_total += (time.perf_counter() - debut)
+                res[h] = pulp.value(model.objective) or 0.0
+                statut_final = pulp.LpStatus[model.status]
+                
+            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {res['greedy']:>12.4f} {res['hef']:>12.4f} {res['aleatoire']:>12.4f} {temps_total:>10.3f} {statut_final:>10}")
         except FileNotFoundError:
             nom = fichier.replace(".txt", "")
             print(f"{nom:<22} {'fichier introuvable':>49}")
@@ -70,11 +89,12 @@ def mode_all():
 
 if len(sys.argv) < 2:
     print("Usage :")
-    print("  python main.py <fichier.txt>   -- resout une instance")
-    print("  python main.py --all           -- resout toutes les instances")
+    print("  python main.py <fichier.txt> [greedy|hef|aleatoire]")
+    print("  python main.py --all")
     sys.exit(1)
 
 if sys.argv[1] == "--all":
     mode_all()
 else:
-    mode_instance(sys.argv[1])
+    heuristique = sys.argv[2] if len(sys.argv) > 2 else "greedy"
+    mode_instance(sys.argv[1], heuristique)
