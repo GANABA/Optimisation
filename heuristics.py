@@ -123,7 +123,7 @@ def construire_config_hef(problem):
     return rendre_elementaire(config, problem)
 
 
-def generer_pool(problem, n_configs=100, seed=None, heuristique="greedy"):
+def generer_pool(problem, n_configs=300, seed=None, heuristique="greedy"):
     """
     Genere un pool de n_configs configurations elementaires distinctes.
     """

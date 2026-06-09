@@ -12,11 +12,13 @@ INSTANCES = [
     "maxi_test_1.txt"
 ]
 
+N_CONFIGS = 5000
+
 
 def resoudre_instance(fichier, heuristique="greedy"):
     """Resout une instance et retourne les resultats."""
     problem = load(fichier)
-    pool = generer_pool(problem, n_configs=10, seed=42, heuristique=heuristique)
+    pool = generer_pool(problem, n_configs=N_CONFIGS, seed=42, heuristique=heuristique)
 
     debut = time.perf_counter()
     model, t = resoudre(problem, pool)
@@ -72,7 +74,7 @@ def mode_all():
             
             for h in ["greedy", "hef", "aleatoire"]:
                 import pulp
-                pool = generer_pool(problem, n_configs=10, seed=42, heuristique=h)
+                pool = generer_pool(problem, n_configs=N_CONFIGS, seed=42, heuristique=h)
                 nb_cfgs_set.add(len(pool))
                 if not pool:
                     res[h] = "0.0"
