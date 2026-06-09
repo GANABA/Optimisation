@@ -55,8 +55,8 @@ def mode_all():
     print()
 
     # En-tete du tableau
-    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Borne':>8} {'Greedy':>14} {'HEF':>14} {'Aleatoire':>14} {'Temps (s)':>10} {'Statut':>10}")
-    print("-" * 110)
+    print(f"{'Instance':<22} {'N':>5} {'M':>5} {'Borne':>8} {'Cfgs':>5} {'Greedy':>14} {'HEF':>14} {'Aleatoire':>14} {'Temps (s)':>10} {'Statut':>10}")
+    print("-" * 116)
 
     for fichier in INSTANCES:
         try:
@@ -67,11 +67,13 @@ def mode_all():
             temps_total = 0.0
             statut_final = "Inconnu"
             ub = problem.upper_bound()
+            nb_cfgs_set = set()
             import time
             
             for h in ["greedy", "hef", "aleatoire"]:
                 import pulp
                 pool = generer_pool(problem, n_configs=10, seed=42, heuristique=h)
+                nb_cfgs_set.add(len(pool))
                 if not pool:
                     res[h] = "0.0"
                     continue
@@ -85,7 +87,8 @@ def mode_all():
                 
                 statut_final = pulp.LpStatus[model.status]
                 
-            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {ub:>8.1f} {res['greedy']:>14} {res['hef']:>14} {res['aleatoire']:>14} {temps_total:>10.3f} {statut_final:>10}")
+            cfgs_str = "/".join(map(str, sorted(nb_cfgs_set)))
+            print(f"{nom:<22} {problem.N:>5} {problem.M:>5} {ub:>8.1f} {cfgs_str:>5} {res['greedy']:>14} {res['hef']:>14} {res['aleatoire']:>14} {temps_total:>10.3f} {statut_final:>10}")
         except FileNotFoundError:
             nom = fichier.replace(".txt", "")
             print(f"{nom:<22} {'fichier introuvable':>49}")
